@@ -1,23 +1,12 @@
 <script setup>
-  import GameBoard from './components/GameBoard.vue';
-
-  import { ref } from 'vue';
-
-  // Estado para o modo de jogo escolhido
-  const gameMode = ref(null);
-
-
-  // Função para escolher o modo de jogo
-  const selectGameMode = (mode) => {
-    gameMode.value = mode;
-  };
+  import LandingPage from '@/components/LandingPage.vue';
 </script>
 
 <template>
   
-  <h1>Jogo de Cartas</h1>
+  <h1>Skyjo</h1>
   
-  <GameBoard />
+  <LandingPage></LandingPage>
   
 </template>
 
@@ -43,27 +32,6 @@ html, body {
   text-align: center;
   padding: 20px;
   box-sizing: border-box;
-}
-
-.mode-selection {
-  display: flex;
-  gap: 20px;
-}
-
-
-button {
-  padding: 10px 20px;
-  font-size: 18px;
-  cursor: pointer;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  transition: background-color 0.2s ease;
-}
-
-button:hover {
-  background-color: #2980b9;
 }
 
 h1 {
