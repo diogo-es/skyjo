@@ -33,7 +33,7 @@
   
   function selectCard(cardIndex, event) {
     emit('select-card', cardIndex, event);
-    emit('update-points', props.hand[cardIndex].value);
+    //emit('update-points', props.hand[cardIndex].value);
   }
 
 

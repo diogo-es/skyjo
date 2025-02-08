@@ -8,9 +8,10 @@ import useDeck from '@/composables/useDeck';
 import usePlayer from '@/composables/usePlayer';
 
 import { useGameStore } from "../stores/game";
+import { useToast } from 'vue-toastification';
 
 
-
+const toast = useToast();
 const gameStore = useGameStore()
 
 const {
@@ -18,7 +19,8 @@ const {
     initializeDeck,
     initializeDiscardPile,
     replaceCard,
-    chooseDiscardCard
+    chooseDiscardCard,
+    hasNotReplacedCard
 } = useDeck();
 
 const { handCreation } = usePlayer();
@@ -51,7 +53,14 @@ const shouldWaitForEvent = ref(false);
 const playersReady = ref(false); 
 let stopWatch = null;  
 
+let lastPlay = false;
 
+const twoCardsTurned = () => {
+  if (gameStore.players.every(player => player.cardsTurned === 2)) {
+    gameStore.playersReady = true;
+  }
+  return gameStore.playersReady;
+}
 
 // Função para inicializar a mão dos jogadores
 /*function generateHand() {
@@ -287,6 +296,30 @@ function keepCard(card) {
     isSelectingPosition.value = true;
   }
 }
+
+
+const determineFirstPlayer = () => {
+  let points = [];
+  let firstPlayer = null;
+
+  gameStore.players.forEach(player => {
+    points.push(player.points);
+  });
+  // obter o jogador com a maior pontuação e definir o turno
+  const maxPoints = Math.max(...points);
+  firstPlayer = gameStore.players.find(player => player.points === maxPoints);
+  gameStore.turn = firstPlayer.name;
+
+  toast.info(`O ${firstPlayer.name} começa em primeiro !`);
+}
+
+
+// Monitoriza todos os jogadores viraram 2 cartas, para determinar o primeiro jogador
+watch(twoCardsTurned, (value) => {
+  if (value) {
+    determineFirstPlayer();
+  }
+});
 
 
 onMounted(() => {
