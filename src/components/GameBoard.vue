@@ -4,6 +4,16 @@ import Player from './Player.vue';
 import Deck from './Deck.vue';
 import DiscardPile from './DiscardPile.vue';
 
+import useDeck from '@/composables/useDeck';
+import usePlayer from '@/composables/usePlayer';
+
+const {
+    initializeDeck,
+    initializeDiscardPile
+} = useDeck();
+
+const { handCreation } = usePlayer();
+
 // Criação do baralho
 const deck = ref([]);
 
@@ -358,6 +368,13 @@ function keepCard(card) {
 
 onMounted(() => {
   initializeGame();
+  console.log(`round: ${round}`);
+
+  initializeDeck();
+
+  initializeDiscardPile();
+
+  handCreation(); 
 })
 
 </script>
