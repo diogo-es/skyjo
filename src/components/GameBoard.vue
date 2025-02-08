@@ -16,7 +16,9 @@ const gameStore = useGameStore()
 const {
     deck,
     initializeDeck,
-    initializeDiscardPile
+    initializeDiscardPile,
+    replaceCard,
+    chooseDiscardCard
 } = useDeck();
 
 const { handCreation } = usePlayer();
@@ -25,9 +27,9 @@ const { handCreation } = usePlayer();
 //const deck = ref([]);
 
 // Estado dos jogadores
-const players = ref([]);
+//const players = ref([]);
 
-const rounds = ref([Array(players.length).fill(null)]);;
+
 const newRound = ref(false);
 
 // Estado para o modo de jogo
@@ -49,46 +51,6 @@ const shouldWaitForEvent = ref(false);
 const playersReady = ref(false); 
 let stopWatch = null;  
 
-
-const sortedPlayersByPoints = computed(() => {
-  return [players.value].sort((a, b) => a.points - b.points);
-});
-
-
-function addNewRow() {
-  rounds.value.push(Array(players.length).fill(null));
-}
-
-
-// Função para gerar o baralho
-const generateDeck = () => {
-  const deckArray = [];
-
-  // Adicionar 5 cartas de valor -2
-  for (let i = 0; i < 5; i++) {
-    deckArray.push({ value: -2 });
-  }
-
-  // Adicionar 10 cartas de valor -1
-  for (let i = 0; i < 10; i++) {
-    deckArray.push({ value: -1 });
-  }
-
-  // Adicionar 15 cartas de valor 0
-  for (let i = 0; i < 15; i++) {
-    deckArray.push({ value: 0 });
-  }
-
-  // Adicionar 10 cartas para cada valor de 1 a 12
-  for (let value = 1; value <= 12; value++) {
-    for (let i = 0; i < 10; i++) {
-      deckArray.push({ value });
-    }
-  }
-
-  
-  return deckArray;
-};
 
 
 // Função para inicializar a mão dos jogadores
@@ -133,91 +95,8 @@ const generateDeck = () => {
 
 let gameStarted = false;
 let selectedCardIndex = null;
- 
-const gameLoop = async () => {
-  // Verifica se os jogadores estão definidos e se há pelo menos 2 jogadores
-  if (!players.value || players.value.length < 2) {
-    console.warn("Não há jogadores suficientes para determinar o primeiro jogador.");
-    return; // Sai da função se não houver jogadores suficientes
-  }
-
-  // Determina o primeiro jogador
-  let firstPlayer = determineFirstPlayer();
-
-  gameStarted = true;
-  curruntPlayer.value = firstPlayer;
-  
-
-  // Verifica se algum jogador perdeu
-  watch(() => players.value.map(player => player.points), (newValues) => {
-    const allPlayersPoints = newValues.some(points => points >= 100);
-    
-    if (allPlayersPoints) {
-      playing.value = false;
-      console.log("O jogo terminou!");
-    }
-  });
-
-  shouldWaitForEvent.value = true;
-
-  // Mantém o jogo a correr enquanto a variável "playing" for verdadeira
-  while (playing.value) {
-    console.log('O jogo está a correr!');
-  
-    players.value.forEach(player => 
-      player.cardsFlipped = 0
-    );
-    
-    
-    // Deixa o jogador selecionar uma carta
-    await awaitPlayerMove(); 
-
-
-    // Fazer a troca de jogadores
-    if (players.value[curruntPlayer.value].cardsFlipped === 1) {
-      curruntPlayer.value = curruntPlayer.value === 0 ? 1 : 0;
-      players.value.forEach(player => player.canFlip = false); 
-      players.value[curruntPlayer.value].canFlip = true; 
-      //console.log('O jogador', curruntPlayer.value + 1, 'passa a ser o atual.');
-    }
-
-
-    if (newRound.value) {
-      createNewRound();
-      newRound.value = false;
-    }
-
-    
-
-  }
-  
-  
-  
-};
-
 
 let round = 0;
-const createNewRound = () => {
-  // Reseta o estado de cada jogador
-  for (let i = 0; i < players.value.length; i++) {
-    rounds.value[round][i] = players.value[i].points;
-    
-    players.value[i].hand = generateHand();   // Gera uma nova mão
-    players.value[i].points = 0;              // Reseta pontos
-    players.value[i].cardsFlipped = 0;        // Reseta cartas viradas
-    players.value[i].allCardsFlipped = false; // Reseta flag de todas cartas viradas
-  }
-  round++;
-  
-  addNewRow(); // Adiciona uma nova linha de jogo
-
-  //console.log('Jogador 1: ', players.value[0].cardsFlipped);
-  //console.log('Jogador 2: ', players.value[1].cardsFlipped);
-  
-  // AQUI
-
-  console.log('Jogadores prontos! Iniciando nova rodada...');
-};
 
 
 const updateallCardsFlipped = (playerIndex) => {
@@ -232,65 +111,102 @@ const updateallCardsFlipped = (playerIndex) => {
 
 
 
-
-
-
-
-
-const awaitPlayerMove = () => {
-  return new Promise((resolve) => {
-    const cards = document.querySelectorAll('.card');
-    const onClick = (event) => {
-      if (shouldWaitForEvent.value) {
-        resolve();
-        cards.forEach((card) => card.removeEventListener('click', onClick));
-      }
-    };
-
-    cards.forEach((card) => card.addEventListener('click', onClick));
-  });
-};
-
-
-const selectGameMode = (mode) => {
-  gameMode.value = mode;
-  initializeGame(); // Chama a função para inicializar o jogo
-};
-
-
-// Função para determinar o primeiro jogador
-const determineFirstPlayer = () => {
-  if (!players.value || players.value.length < 2) {
-    console.warn("Não há jogadores suficientes para determinar o primeiro jogador.");
-    return 0; // Retornar um jogador padrão se não houver jogadores
-  }
-
-  // O jogador com a maior soma é o primeiro a jogar
-  const pointsPlayer1 = players.value[0].points;
-  const pointsPlayer2 = players.value[1].points;
-  
-
-  if (pointsPlayer1 > pointsPlayer2) {
-    return 0;
-  }else if (pointsPlayer1 < pointsPlayer2) {
-    return 1;
-  }else {
-    // TODO: Ver as regreas do jogo para desempate
-    return Math.floor(Math.random() * 2);
-  }
-
-
-};
-
-
 // Função para atualizar os pontos de um jogador
 function updatePlayerPoints(playerIndex, cardValue) {
   if (curruntPlayer.value !== playerIndex && gameStarted) {
     return;
   }
 
-  players.value[playerIndex].points += cardValue;
+  gameStore.players[playerIndex].points += cardValue;
 }
+
+
+
+
+const flipCard = (playerIndex, cardIndex, event) => {
+
+  //debugger
+  
+  const playerCards = gameStore.players[playerIndex].cards;
+  
+  
+  // Impedir os jogadores de virem mais de 2 cartas, até o jogo começar
+  if (!gameStore.playersReady && gameStore.players[playerIndex].cardsTurned === 2) {
+    console.log("Não é possível virar mais cartas, até o jogo começar!");
+    return;
+  }
+
+
+  // Para atualizar os pontos do jogador, apenas se o jogo/ronda não tiver começado
+  if (!gameStore.playersReady && gameStore.players[playerIndex].cardsTurned !== 2) {
+    gameStore.players[playerIndex].points += parseInt(playerCards[cardIndex].number.number);
+  }
+
+
+
+  // Verificar se é a vez do jogador para virar a carta
+  if (gameStore.turn !== gameStore.players[playerIndex].name && gameStore.playersReady) {
+    toast.info('Não é a sua vez.')
+    return;
+  }
+
+
+  // Gerir a interação com o baralho e descarte
+  if (replaceCard.value || chooseDiscardCard.value) {
+    playerCards[cardIndex].isTurned = false;
+
+    let cardOldValue = playerCards[cardIndex].number.number;
+
+    playerCards[cardIndex].number.number = chooseDiscardCard.value ? discardPile.value[discardPile.value.length - 1] : drawnCardValue.value;
+    discardPile.value.push(parseInt(cardOldValue));
+    discardCardValue.value = cardOldValue;
+    
+    
+    drawnCard.value = false; // Ver mais tarde se isto é util
+    
+  }
+
+
+  
+  if (gameStore.playersReady) {
+
+    // Atualiza os pontos do jogador se a carta não estiver virada (VIRA A CARTA)
+    if (lastPlay) {
+      const playerIndex = gameStore.players.findIndex(player => player.name === gameStore.turn);
+      gameStore.players[playerIndex].cards.forEach(card => card.isTurned = true);
+
+    } else if (!playerCards[cardIndex].isTurned && (replaceCard.value || chooseDiscardCard.value || hasNotReplacedCard.value)) {
+
+      playerCards[cardIndex].isTurned = !playerCards[cardIndex].isTurned;
+      gameStore.players[playerIndex].cardsTurned++;
+      changeTurn();
+
+      hasNotReplacedCard.value = false;
+      replaceCard.value = false;
+      chooseDiscardCard.value = false;
+
+    } else {
+      if (playerCards[cardIndex].isTurned) {
+        toast.info('A carta já está virada!')
+      }else{
+        toast.info('Tem de retirar uma carta do baralho ou descarte primeiro!')
+      }
+    }
+
+
+  } else {
+    // Vira a carta e atualiza o número de cartas viradas
+    playerCards[cardIndex].isTurned = !playerCards[cardIndex].isTurned;
+    gameStore.players[playerIndex].cardsTurned++;
+  }
+  
+}
+
+
+
+
+
+
 
 
 // Função para selecionar/deselecionar uma carta da mão
@@ -303,10 +219,10 @@ function selectCard(playerIndex, cardIndex, event) {
     return;
   }
 
-  if (players.value[playerIndex].canFlip === false) {
+  /*if (players.value[playerIndex].canFlip === false) {
     console.log('O jogador', playerIndex + 1, 'não pode virar cartas agora.');
     return;
-  }
+  }*/
 
   // Aqui verificamos se o jogador está a selecionar uma carta para colocar na mão
   if (isSelectingPosition.value) {
@@ -316,7 +232,7 @@ function selectCard(playerIndex, cardIndex, event) {
     drawnCard.value = null;
     return;
   }
-
+  console.log("Debug: ", players.value)
   // Se estamos apenas virando uma carta
   players.value[playerIndex].hand[cardIndex].isFlipped =
     !players.value[playerIndex].hand[cardIndex].isFlipped;
@@ -405,7 +321,7 @@ onMounted(() => {
       :hand="player.cards"
       :points="player.points"
       :allCardsFlipped="player.allCardsFlipped"
-      @select-card="(cardIndex, event) => selectCard(index, cardIndex, event)"
+      @select-card="(cardIndex, event) => flipCard(index, cardIndex, event)"
       @update-points="updatePlayerPoints(index, $event)"
       @new-round="updateallCardsFlipped(index)"
     />

@@ -22,7 +22,7 @@
       :key="index"
       :value="card.number.number"
       :isSelected="card.isSelected"
-      :isFlipped="card.isFlipped"
+      :isFlipped="card.isTurned"
       @select-card="selectCard(index, $event)"
     />
   </div>
