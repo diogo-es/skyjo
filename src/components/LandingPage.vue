@@ -1,10 +1,18 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const gameMode = ref(null);
+const router = useRouter();
 
 const selectGameMode = (mode) => {
   gameMode.value = mode
+
+  if (mode === 'single') {
+    router.push('/singleplayer'); // Redireciona para a página do modo single player
+  } else if (mode === 'multi') {
+    router.push('/multiplayer'); // Redireciona para a página do modo multiplayer
+  }
 };
 
 </script>

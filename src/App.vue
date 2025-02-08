@@ -1,12 +1,10 @@
 <script setup>
-  import LandingPage from '@/components/LandingPage.vue';
 </script>
 
 <template>
   
   <h1>Skyjo</h1>
-  
-  <LandingPage></LandingPage>
+  <router-view />
   
 </template>
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, provide, computed, watch } from 'vue';
+import { ref, provide, computed, watch, onMounted } from 'vue';
 import Player from './Player.vue';
 import Deck from './Deck.vue';
 import DiscardPile from './DiscardPile.vue';
@@ -14,7 +14,7 @@ const rounds = ref([Array(players.length).fill(null)]);;
 const newRound = ref(false);
 
 // Estado para o modo de jogo
-const gameMode = ref(null);
+//const gameMode = ref(null);
 const curruntPlayer = ref(0);
 const playing = ref(true);
 
@@ -356,28 +356,24 @@ function keepCard(card) {
 }
 
 
+onMounted(() => {
+  initializeGame();
+})
+
 </script>
 
 <template>
   <div class="game-board">
-    <!-- Seleção do modo de jogo -->
-    <div v-if="!gameMode" class="mode-selection">
-      <button @click="selectGameMode('single')">Single Player</button>
-      <button @click="selectGameMode('multi')">Multiplayer</button>
-    </div>
-
-
 
     <!-- Deck, DiscardPile e jogadores -->
-    <Deck
-      v-if="gameMode" 
+    <Deck 
       :deck="deck" 
       :drawnCard="drawnCard" 
       @draw-card="drawCard" 
       @keep-card="keepCard"
       @discard-card="discardCard"
     />
-    <DiscardPile v-if="gameMode" :discardPile="discardPile" />
+    <DiscardPile :discardPile="discardPile" />
     
     <Player
       v-for="(player, index) in players"
@@ -389,7 +385,6 @@ function keepCard(card) {
       @select-card="(cardIndex, event) => selectCard(index, cardIndex, event)"
       @update-points="updatePlayerPoints(index, $event)"
       @new-round="updateallCardsFlipped(index)"
-      v-if="gameMode"
     />
   </div>
 </template>
