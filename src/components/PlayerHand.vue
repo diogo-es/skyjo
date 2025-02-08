@@ -20,7 +20,7 @@
     <Card
       v-for="(card, index) in hand"
       :key="index"
-      :value="card.value"
+      :value="card.number.number"
       :isSelected="card.isSelected"
       :isFlipped="card.isFlipped"
       @select-card="selectCard(index, $event)"

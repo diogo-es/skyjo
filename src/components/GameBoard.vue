@@ -7,7 +7,14 @@ import DiscardPile from './DiscardPile.vue';
 import useDeck from '@/composables/useDeck';
 import usePlayer from '@/composables/usePlayer';
 
+import { useGameStore } from "../stores/game";
+
+
+
+const gameStore = useGameStore()
+
 const {
+    deck,
     initializeDeck,
     initializeDiscardPile
 } = useDeck();
@@ -15,7 +22,7 @@ const {
 const { handCreation } = usePlayer();
 
 // Criação do baralho
-const deck = ref([]);
+//const deck = ref([]);
 
 // Estado dos jogadores
 const players = ref([]);
@@ -85,17 +92,17 @@ const generateDeck = () => {
 
 
 // Função para inicializar a mão dos jogadores
-function generateHand() {
+/*function generateHand() {
   // Retirar 12 cartas do deck aleatoriamente
   return Array.from({ length: 12 }, () => {
     const randomIndex = Math.floor(Math.random() * deck.value.length);
     return deck.value.splice(randomIndex, 1)[0]; // Remove e retorna a carta
   });
-}
+}*/
 
 
 // Função para inicializar o jogo
-const initializeGame = () => {
+/*const initializeGame = () => {
   // Inicializa o deck
   deck.value = generateDeck();
 
@@ -121,7 +128,7 @@ const initializeGame = () => {
       gameLoop(); // Inicia o loop do jogo apenas depois de todos virarem 2 cartas
     }
   });
-};
+};*/
 
 
 let gameStarted = false;
@@ -367,7 +374,6 @@ function keepCard(card) {
 
 
 onMounted(() => {
-  initializeGame();
   console.log(`round: ${round}`);
 
   initializeDeck();
@@ -393,10 +399,10 @@ onMounted(() => {
     <DiscardPile :discardPile="discardPile" />
     
     <Player
-      v-for="(player, index) in players"
+      v-for="(player, index) in gameStore.players"
       :key="index"
       :name="player.name"
-      :hand="player.hand"
+      :hand="player.cards"
       :points="player.points"
       :allCardsFlipped="player.allCardsFlipped"
       @select-card="(cardIndex, event) => selectCard(index, cardIndex, event)"
