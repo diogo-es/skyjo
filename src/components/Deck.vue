@@ -11,7 +11,7 @@ const emit = defineEmits(['draw-card', 'keep-card', 'discard-card']);
 
 
 const drawCard = () => {
-  if (props.deck.length > 0 && !props.drawnCard) {
+  if (props.deck.length > 0) {
     emit('draw-card');
   }
 };
