@@ -316,6 +316,27 @@ const determineFirstPlayer = () => {
 }
 
 
+const changeTurn = () => {
+  if (gameStore.players.some(player => player.cards.every(card => card.isTurned)) && firstPlayer.name !== gameStore.turn) {
+
+    // as cartas do outro jogador tem de ser viradas automaticamente
+    // TODO: Por aqui um setTimeout para virar as cartas automaticamente e um toast para informar o jogador
+    const playerIndex = gameStore.players.findIndex(player => player.name === firstPlayer.name);
+    gameStore.players[playerIndex].cards.forEach(card => card.isTurned = true);
+  }
+
+  if (gameStore.players.some(player => player.cards.every(card => card.isTurned)) && firstPlayer.name === gameStore.turn) {
+    // o outro jogador só pode virar mais 1 carta
+    lastPlay = true;
+  }
+
+
+  const playerIndex = gameStore.players.findIndex(player => player.name === gameStore.turn);
+  const nextPlayerIndex = playerIndex === 0 ? 1 : 0;
+  gameStore.turn = gameStore.players[nextPlayerIndex].name;
+}
+
+
 // Monitoriza todos os jogadores viraram 2 cartas, para determinar o primeiro jogador
 watch(twoCardsTurned, (value) => {
   if (value) {

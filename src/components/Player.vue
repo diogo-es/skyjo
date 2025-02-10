@@ -1,9 +1,11 @@
 <script setup>
   import { computed, watch, inject } from 'vue';
   import PlayerHand from './PlayerHand.vue';
-
+  import { useGameStore } from '@/stores/game';
 
   
+  const gameStore = useGameStore()
+
   const props = defineProps({
     name: {
       type: String,
@@ -48,7 +50,10 @@
 
 <template>
   <div class="player">
-    <h2>{{ name }}</h2>
+    
+    <h2 :class="name === gameStore.turn ? 'active-player' : ''">
+      {{ name }}
+    </h2>
     <PlayerHand :hand="hand" @select-card="selectCard" />
     <p>Pontos: {{ points }}</p>
   </div>
@@ -58,6 +63,10 @@
 <style>
   .player {
     margin-bottom: 20px;
+  }
+
+  .active-player {
+    color: red;
   }
 </style>
   
