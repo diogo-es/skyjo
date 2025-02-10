@@ -64,6 +64,15 @@ const twoCardsTurned = () => {
   return gameStore.playersReady;
 }
 
+const scores = computed(() => 
+  gameStore.players.map(player => {
+    // Soma o valor das cartas viradas
+    return player.cards
+      .filter(card => card.isTurned && !card.isHidden) 
+      .reduce((sum, card) => sum + parseInt(card.number.number), player.score);
+  })
+);
+
 // Função para inicializar a mão dos jogadores
 /*function generateHand() {
   // Retirar 12 cartas do deck aleatoriamente
@@ -380,7 +389,7 @@ onMounted(() => {
       :key="index"
       :name="player.name"
       :hand="player.cards"
-      :points="player.points"
+      :points="scores[index]"
       :allCardsFlipped="player.allCardsFlipped"
       @select-card="(cardIndex, event) => flipCard(index, cardIndex, event)"
       @update-points="updatePlayerPoints(index, $event)"
