@@ -15,21 +15,23 @@ const toast = useToast();
 const gameStore = useGameStore()
 
 const {
-    deck,
-    initializeDeck,
-    initializeDiscardPile,
-    replaceCard,
-    chooseDiscardCard,
-    hasNotReplacedCard
+  deck,
+  initializeDeck,
+  initializeDiscardPile,
+  replaceCard,
+  chooseDiscardCard,
+  hasNotReplacedCard,
+  onDeckCardClick,
+  drawnCardValue,
+  keepCard,
+  selectDiscardCard,
+  discardCardValue,
+  isDrawnCard,
+  discardPile,
+  discardCard
 } = useDeck();
 
 const { handCreation } = usePlayer();
-
-// Criação do baralho
-//const deck = ref([]);
-
-// Estado dos jogadores
-//const players = ref([]);
 
 
 const newRound = ref(false);
@@ -39,7 +41,7 @@ const newRound = ref(false);
 const curruntPlayer = ref(0);
 const playing = ref(true);
 
-const discardPile = ref([]);
+//const discardPile = ref([]);
 const drawnCard = ref(null);
 const cardToPlace = ref(null);
 const isSelectingPosition = ref(false);
@@ -159,7 +161,7 @@ const flipCard = (playerIndex, cardIndex, event) => {
     return;
   }
 
-
+  //debugger
   // Gerir a interação com o baralho e descarte
   if (replaceCard.value || chooseDiscardCard.value) {
     playerCards[cardIndex].isTurned = false;
@@ -282,20 +284,20 @@ function drawCard() {
 }
 
 // Função para descartar uma carta
-function discardCard(card) {
+/*function discardCard(card) {
   console.log('Carta descartada: ', card);
   discardPile.value.push(card);
   drawnCard.value = null;
-}
+}*/
 
 // Função para guardar uma carta
-function keepCard(card) {
+/*function keepCard(card) {
   if (drawnCard.value) {
     console.log('Carta guardada: ', card);
     cardToPlace.value = card;
     isSelectingPosition.value = true;
   }
-}
+}*/
 
 
 const determineFirstPlayer = () => {
@@ -340,12 +342,17 @@ onMounted(() => {
     <!-- Deck, DiscardPile e jogadores -->
     <Deck 
       :deck="deck" 
-      :drawnCard="drawnCard" 
-      @draw-card="drawCard" 
+      :drawnCard="drawnCardValue"
+      :isDrawnCard="isDrawnCard" 
+      @draw-card="onDeckCardClick" 
       @keep-card="keepCard"
       @discard-card="discardCard"
     />
-    <DiscardPile :discardPile="discardPile" />
+
+    <DiscardPile 
+      :discardPile="discardPile"
+      @select-card="selectDiscardCard"
+    />
     
     <Player
       v-for="(player, index) in gameStore.players"

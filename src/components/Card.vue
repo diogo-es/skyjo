@@ -39,9 +39,11 @@
 
   
   function flipCard(event) {
-    if (!props.isFlipped || injectedData.value) {
+    //debugger
+    /*if (!props.isFlipped || injectedData.value) {
       emit('select-card', event);
-    }
+    }*/
+    emit('select-card', event);
     // por um toast para informar que a carta foi virada
     // TODO: Passar a logica de virar a carta para o GameBoard
   }

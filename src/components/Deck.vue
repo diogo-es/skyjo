@@ -3,7 +3,8 @@ import Card from './Card.vue';
 
 const props = defineProps({
   deck: Array,
-  drawnCard: Object
+  drawnCard: Number,
+  isDrawnCard: Boolean
 });
 
 const emit = defineEmits(['draw-card', 'keep-card', 'discard-card']);
@@ -36,8 +37,8 @@ const discardCard = () => {
     </div>
 
     <!-- Carta puxada -->
-    <div v-if="drawnCard" class="drawn-card">
-      <Card :value="drawnCard.value" :is-flipped="true"/>
+    <div v-if="isDrawnCard" class="drawn-card">
+      <Card :value="drawnCard" :is-flipped="true"/>
       <div class="card-actions">
         <button @click="keepCard">Keep</button>
         <button @click="discardCard">Discard</button>
