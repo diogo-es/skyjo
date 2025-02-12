@@ -22,7 +22,6 @@ const keepCard = () => {
 
 const discardCard = () => {
   emit('discard-card', props.drawnCard);
-  console.log('deck size: ', props.deck.length);
 };
 </script>
 

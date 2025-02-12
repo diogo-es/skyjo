@@ -37,18 +37,15 @@ const { handCreation } = usePlayer();
 const newRound = ref(false);
 
 // Estado para o modo de jogo
-//const gameMode = ref(null);
 const curruntPlayer = ref(0);
 const playing = ref(true);
 
-//const discardPile = ref([]);
 const drawnCard = ref(null);
 const cardToPlace = ref(null);
 const isSelectingPosition = ref(false);
 provide('sharedData', isSelectingPosition);
 
 const allCardsFlipped = ref(false);
-//provide('allCardsFlipped', allCardsFlipped);
 
 const shouldWaitForEvent = ref(false);
 
@@ -78,44 +75,6 @@ const everyCardTurned = computed(() =>
   gameStore.players.map(player => player.cards.filter(card => card.isTurned && !card.isHidden))
 );
 
-// Função para inicializar a mão dos jogadores
-/*function generateHand() {
-  // Retirar 12 cartas do deck aleatoriamente
-  return Array.from({ length: 12 }, () => {
-    const randomIndex = Math.floor(Math.random() * deck.value.length);
-    return deck.value.splice(randomIndex, 1)[0]; // Remove e retorna a carta
-  });
-}*/
-
-
-// Função para inicializar o jogo
-/*const initializeGame = () => {
-  // Inicializa o deck
-  deck.value = generateDeck();
-
-  // Inicializa os jogadores
-  players.value = [
-    { 
-      name: 'Player 1', hand: generateHand(),
-      points: 0, cardsFlipped: 0, canFlip: true, allCardsFlipped: false
-    },
-    { 
-      name: 'Player 2', hand: generateHand(),
-      points: 0, cardsFlipped: 0, canFlip: true, allCardsFlipped: false
-    },
-  ];
-
-  // Chama o gameLoop após a inicialização dos jogadores
-  // Assista o estado dos jogadores para verificar quando eles virarem duas cartas
-  watch(() => players.value.map(player => player.cardsFlipped), (newValues) => {
-    const allPlayersFlippedTwoCards = newValues.every(flipped => flipped >= 2);
-    
-    if (allPlayersFlippedTwoCards) {
-      // Pode chamar o restante da lógica do jogo aqui
-      gameLoop(); // Inicia o loop do jogo apenas depois de todos virarem 2 cartas
-    }
-  });
-};*/
 
 
 let gameStarted = false;
@@ -126,7 +85,6 @@ let round = 0;
 
 const updateallCardsFlipped = (playerIndex) => {
   players.value[playerIndex].allCardsFlipped = true;
-  //console.log('Todos os jogadores viraram as cartas!', players.value.every(player => player.allCardsFlipped));
 
   if (players.value.every(player => player.allCardsFlipped)) {
     newRound.value = true;
@@ -296,22 +254,6 @@ function drawCard() {
     // Aqui você pode decidir a quem dar a carta, se for automático ou baseado em uma lógica
   }
 }
-
-// Função para descartar uma carta
-/*function discardCard(card) {
-  console.log('Carta descartada: ', card);
-  discardPile.value.push(card);
-  drawnCard.value = null;
-}*/
-
-// Função para guardar uma carta
-/*function keepCard(card) {
-  if (drawnCard.value) {
-    console.log('Carta guardada: ', card);
-    cardToPlace.value = card;
-    isSelectingPosition.value = true;
-  }
-}*/
 
 
 const determineFirstPlayer = () => {
