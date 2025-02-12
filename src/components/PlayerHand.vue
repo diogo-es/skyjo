@@ -19,10 +19,11 @@
   <div class="player-hand">
     <Card
       v-for="(card, index) in hand"
-      :key="index"
+      :key="card.id"
       :value="card.number.number"
       :isSelected="card.isSelected"
       :isFlipped="card.isTurned"
+      :isHidden="card.isHidden"
       @select-card="selectCard(index, $event)"
     />
   </div>

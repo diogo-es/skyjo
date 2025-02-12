@@ -16,6 +16,10 @@
       type: Boolean,
       default: false,
     },
+    isHidden: {
+      type: Boolean,
+      default: false
+    }
   });
   
   const emit = defineEmits(['select-card']);
@@ -51,10 +55,14 @@
 
 
 <template>
-  <div 
+  <div
     class="card" 
-    :class="{ selected: isSelected, flipped: isFlipped }" 
-    :style="{ backgroundColor: isFlipped ? cardColor : '#2c3e50' }"
+    :class="{ selected: isSelected, flipped: isFlipped, hidden: isHidden }" 
+    :style="{ 
+      backgroundColor: isFlipped ? cardColor : '#2c3e50',
+      visibility: isHidden ? 'hidden' : 'visible', /* Mantém a posição mas esconde visualmente */
+      opacity: isHidden ? 0 : 1 /* Adiciona um efeito visual */
+    }"
     @click="flipCard"
   >
     <div class="card-content" v-if="isFlipped">
@@ -104,5 +112,14 @@
     height: 100%;
     border-radius: 8px;
   }
+
+
+  .card.hidden {
+    visibility: hidden;
+    /*opacity: 0;
+    pointer-events: none; 
+    transition: opacity 0.3s ease-in-out;*/
+  }
+
 </style>
   

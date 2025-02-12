@@ -73,6 +73,11 @@ const scores = computed(() =>
   })
 );
 
+
+const everyCardTurned = computed(() =>
+  gameStore.players.map(player => player.cards.filter(card => card.isTurned && !card.isHidden))
+);
+
 // Função para inicializar a mão dos jogadores
 /*function generateHand() {
   // Retirar 12 cartas do deck aleatoriamente
@@ -352,6 +357,26 @@ watch(twoCardsTurned, (value) => {
     determineFirstPlayer();
   }
 });
+
+
+// Monitoriza se todas as cartas de uma coluna são iguais
+watch(everyCardTurned, async (allCardsTurned) => {
+  //debugger
+  allCardsTurned.forEach((cards, playerIndex) => {
+    const sameColumn = cards.filter(card => 
+      cards.some(c => c.col === card.col && c.number.number === card.number.number && c.id !== card.id)
+    );
+    //console.log("Debug: ", sameColumn)
+    if (sameColumn.length === 3) {
+      sameColumn.forEach(card => {
+        card.isHidden = true;
+        discardPile.value.push(card.number.number);
+      });
+      
+      
+    }
+  });
+},  { immediate: false });
 
 
 onMounted(() => {
