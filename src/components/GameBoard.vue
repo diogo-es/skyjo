@@ -33,6 +33,9 @@ const {
 
 const { handCreation } = usePlayer();
 
+const hasGameEnded = ref(false);
+let firstPlayer = null;
+
 
 const newRound = ref(false);
 
@@ -74,6 +77,10 @@ const scores = computed(() =>
 const everyCardTurned = computed(() =>
   gameStore.players.map(player => player.cards.filter(card => card.isTurned && !card.isHidden))
 );
+
+const allCardsTurned = () => {
+  return gameStore.players.every(player => player.cards.every(card => card.isTurned));
+}
 
 
 
@@ -258,7 +265,6 @@ function drawCard() {
 
 const determineFirstPlayer = () => {
   let points = [];
-  let firstPlayer = null;
 
   gameStore.players.forEach(player => {
     points.push(player.points);
@@ -293,6 +299,27 @@ const changeTurn = () => {
 }
 
 
+
+const resetGame = () => {
+
+  scores.value.forEach((score, playerIndex) => {
+    gameStore.players[playerIndex].score = score;
+  });
+
+  gameStore.players.forEach(player => {
+    player.cardsTurned = 0;
+    player.points = 0;
+
+    player.cards.forEach(card => card.isTurned = false);
+    player.cards.forEach(card => card.isHidden = false);
+  });
+
+  gameStore.playersReady = false;
+  gameStore.turn = null;
+
+}
+
+
 // Monitoriza todos os jogadores viraram 2 cartas, para determinar o primeiro jogador
 watch(twoCardsTurned, (value) => {
   if (value) {
@@ -319,6 +346,19 @@ watch(everyCardTurned, async (allCardsTurned) => {
     }
   });
 },  { immediate: false });
+
+
+// Verifica se todas as cartas estão viradas, para determinar o fim da ronda
+watch(allCardsTurned, (value) => {
+  
+  if (!hasGameEnded.value && value) {
+    toast.info(`Fim da ${round}ª ronda.`)
+    setTimeout(() => {
+      round++;
+      resetGame();
+    }, 2000);
+  }
+});
 
 
 onMounted(() => {
