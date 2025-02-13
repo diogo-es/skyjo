@@ -11,6 +11,9 @@ import { useGameStore } from "../stores/game";
 import { useToast } from 'vue-toastification';
 
 
+
+const MAX_SCORE = 35;
+
 const toast = useToast();
 const gameStore = useGameStore()
 
@@ -320,6 +323,14 @@ const resetGame = () => {
 }
 
 
+const determineWinner = () => {
+  const scores = gameStore.players.map(player => player.score);
+  const minScore = Math.min(...scores);
+  const winner = gameStore.players.find(player => player.score === minScore);
+  console.log("Winner: ", winner.name);
+}
+
+
 // Monitoriza todos os jogadores viraram 2 cartas, para determinar o primeiro jogador
 watch(twoCardsTurned, (value) => {
   if (value) {
@@ -358,6 +369,28 @@ watch(allCardsTurned, (value) => {
       resetGame();
     }, 2000);
   }
+});
+
+
+// Monitoriza o fim do jogo
+watch(hasGameEnded, (gameOver) => {
+  toast.info('Fim de jogo')
+  if (gameOver) {
+    determineWinner();
+  }
+});
+
+
+
+// Monitoriza a pontuação dos jogadores
+watch(scores, (scores) => {
+  
+  if (scores.some(score => score >= MAX_SCORE && allCardsTurned())) {
+    hasGameEnded.value = true;
+  } else {
+    hasGameEnded.value = false;
+  }
+
 });
 
 
