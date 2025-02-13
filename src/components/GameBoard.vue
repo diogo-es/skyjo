@@ -319,6 +319,7 @@ const resetGame = () => {
 
   gameStore.playersReady = false;
   gameStore.turn = null;
+  lastPlay = false
 
 }
 
