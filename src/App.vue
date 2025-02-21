@@ -3,7 +3,7 @@
 
 <template>
   
-  <h1>Skyjo</h1>
+  
   <router-view />
   
 </template>
@@ -28,7 +28,6 @@ html, body {
   height: 100%;
   background-color: #f4f4f4;
   text-align: center;
-  padding: 20px;
   box-sizing: border-box;
 }
 
@@ -37,5 +36,10 @@ h1 {
   color: #34495e;
   width: 100%;
   text-align: center;
+}
+
+router-view {
+  width: 100%;
+  height: 100%;
 }
 </style>

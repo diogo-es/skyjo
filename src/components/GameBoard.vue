@@ -10,12 +10,15 @@ import usePlayer from '@/composables/usePlayer';
 import { useGameStore } from "../stores/game";
 import { useToast } from 'vue-toastification';
 
+import { useRouter } from 'vue-router';
+
 
 
 const MAX_SCORE = 35;
 
 const toast = useToast();
 const gameStore = useGameStore()
+const router = useRouter();
 
 const {
   deck,
@@ -67,14 +70,14 @@ const twoCardsTurned = () => {
   return gameStore.playersReady;
 }
 
-const scores = computed(() => 
+/*const scores = computed(() => 
   gameStore.players.map(player => {
     // Soma o valor das cartas viradas
     return player.cards
       .filter(card => card.isTurned && !card.isHidden) 
       .reduce((sum, card) => sum + parseInt(card.number.number), player.score);
   })
-);
+);*/
 
 
 const everyCardTurned = computed(() =>
@@ -305,7 +308,7 @@ const changeTurn = () => {
 
 const resetGame = () => {
 
-  scores.value.forEach((score, playerIndex) => {
+  gameStore.scores.value.forEach((score, playerIndex) => {
     gameStore.players[playerIndex].score = score;
   });
 
@@ -325,11 +328,17 @@ const resetGame = () => {
 
 
 const determineWinner = () => {
-  const scores = gameStore.players.map(player => player.score);
-  const minScore = Math.min(...scores);
-  const winner = gameStore.players.find(player => player.score === minScore);
-  console.log("Winner: ", winner.name);
-}
+  const minScore = Math.min(...gameStore.scores);
+  console.log("Min Score:", minScore, "Scores:", gameStore.scores);
+
+  gameStore.players.forEach( (player, index) => {
+    player.score = gameStore.scores[index]
+  });
+
+  gameStore.winner = gameStore.players.find(player => Number(player.score) === minScore);
+  console.log("Winner:", gameStore.winner);
+};
+
 
 
 // Monitoriza todos os jogadores viraram 2 cartas, para determinar o primeiro jogador
@@ -378,13 +387,14 @@ watch(hasGameEnded, (gameOver) => {
   toast.info('Fim de jogo')
   if (gameOver) {
     determineWinner();
+    router.push('/results')
   }
 });
 
 
 
 // Monitoriza a pontuação dos jogadores
-watch(scores, (scores) => {
+watch(() => gameStore.scores, (scores) => {
   
   if (scores.some(score => score >= MAX_SCORE && allCardsTurned())) {
     hasGameEnded.value = true;
@@ -408,6 +418,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <h1>Skyjo</h1>
   <div class="game-board">
 
     <!-- Deck, DiscardPile e jogadores -->
@@ -430,7 +441,7 @@ onMounted(() => {
       :key="index"
       :name="player.name"
       :hand="player.cards"
-      :points="scores[index]"
+      :points="gameStore.scores[index]"
       :allCardsFlipped="player.allCardsFlipped"
       @select-card="(cardIndex, event) => flipCard(index, cardIndex, event)"
       @update-points="updatePlayerPoints(index, $event)"
@@ -442,10 +453,13 @@ onMounted(() => {
 <style>
   .game-board {
     display: flex;
-    justify-content: space-evenly;
-    align-items: flex-start;
+    /*flex-direction: column;*/
+    justify-content: center;
+    align-items: center;
     width: 100%;
+    height: 100vh;
     padding: 20px;
     gap: 40px;
+    box-sizing: border-box;
   }
 </style>
