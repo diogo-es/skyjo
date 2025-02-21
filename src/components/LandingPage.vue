@@ -9,9 +9,9 @@ const selectGameMode = (mode) => {
   gameMode.value = mode
 
   if (mode === 'single') {
-    router.push('/singleplayer'); // Redireciona para a página do modo single player
+    router.push('/singleplayer'); 
   } else if (mode === 'multi') {
-    router.push('/multiplayer'); // Redireciona para a página do modo multiplayer
+    router.push('/multiplayer'); 
   }
 };
 

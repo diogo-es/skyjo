@@ -1,8 +1,5 @@
 <script setup>
-  import Card from './Card.vue';
-  import useDeck from '@/composables/useDeck';
-
-  const { discardCardValue } = useDeck()
+  import Card from '@/components/Card.vue';
 
   const props = defineProps({
       discardPile: Object

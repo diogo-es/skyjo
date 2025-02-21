@@ -1,6 +1,5 @@
 <script setup>
-  import { computed, watch, inject } from 'vue';
-  import PlayerHand from './PlayerHand.vue';
+  import PlayerHand from '@/components/PlayerHand.vue';
   import { useGameStore } from '@/stores/game';
 
   
@@ -19,31 +18,14 @@
       type: Number,
       default: 0,
     },
-    allCardsFlipped: {
-      type: Boolean,
-      default: false,
-    },
   });
 
-  //const allCardsFlipped = inject('allCardsFlipped');
-
-  const computedAllCardsFlipped = computed(() => {
-    return props.hand.every(card => card.isFlipped);
-  });
   
-  const emit = defineEmits(['select-card', 'update-points', 'new-round']);
+  const emit = defineEmits(['select-card']);
   
   function selectCard(cardIndex, event) {
     emit('select-card', cardIndex, event);
-    //emit('update-points', props.hand[cardIndex].value);
   }
-
-
-  watch(computedAllCardsFlipped, (newValue) => {
-    if (newValue) {
-      emit('new-round');
-    }
-  });
 
   </script>
 

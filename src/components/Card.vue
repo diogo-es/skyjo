@@ -1,7 +1,5 @@
 <script setup>
-  import { inject, computed } from 'vue';
-
-  const injectedData = inject('sharedData');
+  import { computed } from 'vue';
   
   const props = defineProps({
     value: {
@@ -43,13 +41,7 @@
 
   
   function flipCard(event) {
-    //debugger
-    /*if (!props.isFlipped || injectedData.value) {
-      emit('select-card', event);
-    }*/
     emit('select-card', event);
-    // por um toast para informar que a carta foi virada
-    // TODO: Passar a logica de virar a carta para o GameBoard
   }
 </script>
 
@@ -101,7 +93,6 @@
 
   .card-value {
     font-size: 24px;
-    /*color: #34495e;*/ /* Cor que combina com a parte traseira */
     color: white;
   }
 
@@ -116,9 +107,6 @@
 
   .card.hidden {
     visibility: hidden;
-    /*opacity: 0;
-    pointer-events: none; 
-    transition: opacity 0.3s ease-in-out;*/
   }
 
 </style>

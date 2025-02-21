@@ -1,15 +1,15 @@
 <script setup>
-import { ref, provide, computed, watch, onMounted } from 'vue';
-import Player from './Player.vue';
-import Deck from './Deck.vue';
-import DiscardPile from './DiscardPile.vue';
+import { ref, computed, watch, onMounted } from 'vue';
+import Player from '@/components/Player.vue';
+import Deck from '@/components/Deck.vue';
+import DiscardPile from '@/components/DiscardPile.vue';
 
 import useDeck from '@/composables/useDeck';
 import usePlayer from '@/composables/usePlayer';
 
-import { useGameStore } from "../stores/game";
-import { useToast } from 'vue-toastification';
+import { useGameStore } from "@/stores/game";
 
+import { useToast } from 'vue-toastification';
 import { useRouter } from 'vue-router';
 
 
@@ -40,28 +40,12 @@ const {
 const { handCreation } = usePlayer();
 
 const hasGameEnded = ref(false);
-let firstPlayer = null;
-
-
-const newRound = ref(false);
-
-// Estado para o modo de jogo
-const curruntPlayer = ref(0);
-const playing = ref(true);
-
 const drawnCard = ref(null);
-const cardToPlace = ref(null);
-const isSelectingPosition = ref(false);
-provide('sharedData', isSelectingPosition);
-
-const allCardsFlipped = ref(false);
-
-const shouldWaitForEvent = ref(false);
-
-const playersReady = ref(false); 
-let stopWatch = null;  
 
 let lastPlay = false;
+let round = 0;
+let firstPlayer = null;
+
 
 const twoCardsTurned = () => {
   if (gameStore.players.every(player => player.cardsTurned === 2)) {
@@ -69,15 +53,6 @@ const twoCardsTurned = () => {
   }
   return gameStore.playersReady;
 }
-
-/*const scores = computed(() => 
-  gameStore.players.map(player => {
-    // Soma o valor das cartas viradas
-    return player.cards
-      .filter(card => card.isTurned && !card.isHidden) 
-      .reduce((sum, card) => sum + parseInt(card.number.number), player.score);
-  })
-);*/
 
 
 const everyCardTurned = computed(() =>
@@ -90,38 +65,7 @@ const allCardsTurned = () => {
 
 
 
-let gameStarted = false;
-let selectedCardIndex = null;
-
-let round = 0;
-
-
-const updateallCardsFlipped = (playerIndex) => {
-  players.value[playerIndex].allCardsFlipped = true;
-
-  if (players.value.every(player => player.allCardsFlipped)) {
-    newRound.value = true;
-  }
-};
-
-
-
-
-// Função para atualizar os pontos de um jogador
-function updatePlayerPoints(playerIndex, cardValue) {
-  if (curruntPlayer.value !== playerIndex && gameStarted) {
-    return;
-  }
-
-  gameStore.players[playerIndex].points += cardValue;
-}
-
-
-
-
 const flipCard = (playerIndex, cardIndex, event) => {
-
-  //debugger
   
   const playerCards = gameStore.players[playerIndex].cards;
   
@@ -146,7 +90,7 @@ const flipCard = (playerIndex, cardIndex, event) => {
     return;
   }
 
-  //debugger
+  
   // Gerir a interação com o baralho e descarte
   if (replaceCard.value || chooseDiscardCard.value) {
     playerCards[cardIndex].isTurned = false;
@@ -198,75 +142,6 @@ const flipCard = (playerIndex, cardIndex, event) => {
   
 }
 
-
-
-
-
-
-
-
-// Função para selecionar/deselecionar uma carta da mão
-function selectCard(playerIndex, cardIndex, event) {
- 
-  selectedCardIndex = cardIndex;
-
-  if (curruntPlayer.value !== playerIndex && gameStarted) {
-    console.log('Não é a vez do jogador', playerIndex + 1);
-    return;
-  }
-
-  /*if (players.value[playerIndex].canFlip === false) {
-    console.log('O jogador', playerIndex + 1, 'não pode virar cartas agora.');
-    return;
-  }*/
-
-  // Aqui verificamos se o jogador está a selecionar uma carta para colocar na mão
-  if (isSelectingPosition.value) {
-    placeCardInHand(playerIndex, cardIndex);
-    players.value[playerIndex].hand[cardIndex].isSelected = true;
-    players.value[playerIndex].hand[cardIndex].isFlipped = true;
-    drawnCard.value = null;
-    return;
-  }
-  console.log("Debug: ", players.value)
-  // Se estamos apenas virando uma carta
-  players.value[playerIndex].hand[cardIndex].isFlipped =
-    !players.value[playerIndex].hand[cardIndex].isFlipped;
-
-  players.value[playerIndex].hand[cardIndex].isSelected =
-    !players.value[playerIndex].hand[cardIndex].isSelected;
-
-  players.value[playerIndex].cardsFlipped++;
-
-
-  if (!shouldWaitForEvent.value) {
-    event.stopPropagation(); // Previne a execução do outro ouvinte de evento
-  }
-    
-}
-
-
-
-// Função para colocar uma carta na mão
-function placeCardInHand(playerIndex, handIndex) {
-  if (cardToPlace.value) {
-    players.value[playerIndex].hand.splice(handIndex, 1, cardToPlace.value);
-    cardToPlace.value = null;
-    isSelectingPosition.value = false; // Desativa a seleção
-  }
-}
-
-// Função para puxar uma carta do baralho
-function drawCard() {
-  if (deck.value.length > 0) {
-    const card = deck.value.pop();
-    console.log('Carta puxada: ', card);
-    drawnCard.value = card;
-
-    // Lógica para dar a carta a um jogador
-    // Aqui você pode decidir a quem dar a carta, se for automático ou baseado em uma lógica
-  }
-}
 
 
 const determineFirstPlayer = () => {
@@ -351,12 +226,12 @@ watch(twoCardsTurned, (value) => {
 
 // Monitoriza se todas as cartas de uma coluna são iguais
 watch(everyCardTurned, async (allCardsTurned) => {
-  //debugger
+  
   allCardsTurned.forEach((cards, playerIndex) => {
     const sameColumn = cards.filter(card => 
       cards.some(c => c.col === card.col && c.number.number === card.number.number && c.id !== card.id)
     );
-    //console.log("Debug: ", sameColumn)
+    
     if (sameColumn.length === 3) {
       sameColumn.forEach(card => {
         card.isHidden = true;
@@ -442,10 +317,7 @@ onMounted(() => {
       :name="player.name"
       :hand="player.cards"
       :points="gameStore.scores[index]"
-      :allCardsFlipped="player.allCardsFlipped"
       @select-card="(cardIndex, event) => flipCard(index, cardIndex, event)"
-      @update-points="updatePlayerPoints(index, $event)"
-      @new-round="updateallCardsFlipped(index)"
     />
   </div>
 </template>
@@ -453,7 +325,6 @@ onMounted(() => {
 <style>
   .game-board {
     display: flex;
-    /*flex-direction: column;*/
     justify-content: center;
     align-items: center;
     width: 100%;

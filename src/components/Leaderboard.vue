@@ -1,7 +1,5 @@
 <script setup>
-    import { useGameStore } from "../stores/game";
-
-
+    import { useGameStore } from "@/stores/game";
     const gameStore = useGameStore()
 </script>
 
