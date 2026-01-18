@@ -255,12 +255,33 @@ watch(allCardsTurned, (value) => {
     } else {
       // Continue to next round
       toast.info(`Fim da ronda ${gameStore.currentRound}. Próxima ronda começará em breve...`);
+      
+      // Find players who have finished (all cards turned)
+      const finishedPlayers = gameStore.players.filter(player => 
+        player.cards.every(card => card.isTurned)
+      );
+      
+      // For players who haven't finished, turn their remaining face-down cards
+      gameStore.players.forEach(player => {
+        // Skip if this player has finished
+        if (finishedPlayers.includes(player)) {
+          return;
+        }
+        
+        // Turn remaining face-down cards
+        player.cards.forEach(card => {
+          if (!card.isTurned && !card.isHidden) {
+            card.isTurned = true;
+          }
+        });
+      });
+      
       setTimeout(() => {
         resetGame();
         initializeDeck();
         initializeDiscardPile();
         handCreation();
-      }, 2000);
+      }, 5000);
     }
   }
 });
@@ -272,7 +293,7 @@ watch(hasGameEnded, (gameOver) => {
     determineWinner();
     setTimeout(() => {
       router.push('/results');
-    }, 2000);
+    }, 5000);
   }
 });
 
