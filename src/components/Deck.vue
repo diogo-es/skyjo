@@ -16,11 +16,11 @@ const drawCard = () => {
   }
 };
 
-const keepCard = () => {
+const onKeepButtonClick = () => {
   emit('keep-card', props.drawnCard);
 };
 
-const discardCard = () => {
+const onDiscardButtonClick = () => {
   emit('discard-card', props.drawnCard);
 };
 </script>
@@ -39,8 +39,8 @@ const discardCard = () => {
     <div v-if="isDrawnCard" class="drawn-card">
       <Card :value="drawnCard" :is-flipped="true"/>
       <div class="card-actions">
-        <button @click="keepCard">Keep</button>
-        <button @click="discardCard">Discard</button>
+        <button @click="onKeepButtonClick">Keep</button>
+        <button @click="onDiscardButtonClick">Discard</button>
       </div>
     </div>
   </div>

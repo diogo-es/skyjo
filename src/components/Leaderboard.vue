@@ -11,13 +11,13 @@
             <div id="playerOne" class="player winner">
                 <h4 v-if="gameStore.players[0].name == gameStore.winner.name">Vencedor 🎉</h4>
                 <h3> {{ gameStore.players[0].name }} </h3>
-                <h2> {{ gameStore.scores[0] }} Pontos</h2>
+                <h2> {{ gameStore.players[0].cumulativeScore }} Pontos</h2>
             </div>
 
             <div id="playerTwo" class="player">
                 <h4 v-if="gameStore.players[1].name == gameStore.winner.name">Vencedor 🎉</h4>
                 <h3> {{ gameStore.players[1].name }} </h3>
-                <h2> {{ gameStore.scores[1] }} Pontos</h2>
+                <h2> {{ gameStore.players[1].cumulativeScore }} Pontos</h2>
             </div>
         </div>
     </div>

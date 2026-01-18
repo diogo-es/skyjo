@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router';
 const gameMode = ref(null);
 const router = useRouter();
 
-const selectGameMode = (mode) => {
+const onGameModeClick = (mode) => {
   gameMode.value = mode
 
   if (mode === 'single') {
@@ -20,8 +20,8 @@ const selectGameMode = (mode) => {
 <template>
     <!-- Seleção do modo de jogo -->
     <div v-if="!gameMode" class="mode-selection">
-      <button @click="selectGameMode('single')">Single Player</button>
-      <button @click="selectGameMode('multi')">Multiplayer</button>
+      <button @click="onGameModeClick('single')">Single Player</button>
+      <button @click="onGameModeClick('multi')">Multiplayer</button>
     </div>
 </template>
 

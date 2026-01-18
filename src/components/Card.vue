@@ -40,7 +40,7 @@
   });
 
   
-  function flipCard(event) {
+  function onCardClick(event) {
     emit('select-card', event);
   }
 </script>
@@ -55,7 +55,7 @@
       visibility: isHidden ? 'hidden' : 'visible', /* Mantém a posição mas esconde visualmente */
       opacity: isHidden ? 0 : 1 /* Adiciona um efeito visual */
     }"
-    @click="flipCard"
+    @click="onCardClick"
   >
     <div class="card-content" v-if="isFlipped">
       <div class="card-value">{{ value }}</div>

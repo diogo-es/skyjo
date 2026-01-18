@@ -14,7 +14,7 @@ import { useRouter } from 'vue-router';
 
 
 
-const MAX_SCORE = 35;
+const MAX_SCORE = 100; // Cumulative score threshold - game ends when a player reaches this
 
 const toast = useToast();
 const gameStore = useGameStore()
@@ -43,7 +43,6 @@ const hasGameEnded = ref(false);
 const drawnCard = ref(null);
 
 let lastPlay = false;
-let round = 0;
 let firstPlayer = null;
 
 
@@ -60,12 +59,12 @@ const everyCardTurned = computed(() =>
 );
 
 const allCardsTurned = () => {
-  return gameStore.players.every(player => player.cards.every(card => card.isTurned));
+  return gameStore.players.some(player => player.cards.every(card => card.isTurned));
 }
 
 
 
-const flipCard = (playerIndex, cardIndex, event) => {
+const onCardClick = (playerIndex, cardIndex, event) => {
   
   const playerCards = gameStore.players[playerIndex].cards;
   
@@ -182,14 +181,10 @@ const changeTurn = () => {
 
 
 const resetGame = () => {
-
-  gameStore.scores.value.forEach((score, playerIndex) => {
-    gameStore.players[playerIndex].score = score;
-  });
-
   gameStore.players.forEach(player => {
     player.cardsTurned = 0;
     player.points = 0;
+    player.roundScore = 0;
 
     player.cards.forEach(card => card.isTurned = false);
     player.cards.forEach(card => card.isHidden = false);
@@ -197,20 +192,21 @@ const resetGame = () => {
 
   gameStore.playersReady = false;
   gameStore.turn = null;
-  lastPlay = false
-
+  lastPlay = false;
+  
+  // Move to next round
+  gameStore.currentRound++;
 }
 
 
 const determineWinner = () => {
-  const minScore = Math.min(...gameStore.scores);
-  console.log("Min Score:", minScore, "Scores:", gameStore.scores);
+  const cumulativeScores = gameStore.players.map(p => p.cumulativeScore);
+  const minScore = Math.min(...cumulativeScores);
+  
+  console.log("Cumulative Scores:", cumulativeScores);
+  console.log("Winner Score:", minScore);
 
-  gameStore.players.forEach( (player, index) => {
-    player.score = gameStore.scores[index]
-  });
-
-  gameStore.winner = gameStore.players.find(player => Number(player.score) === minScore);
+  gameStore.winner = gameStore.players.find(player => player.cumulativeScore === minScore);
   console.log("Winner:", gameStore.winner);
 };
 
@@ -248,40 +244,42 @@ watch(everyCardTurned, async (allCardsTurned) => {
 watch(allCardsTurned, (value) => {
   
   if (!hasGameEnded.value && value) {
-    toast.info(`Fim da ${round}ª ronda.`)
-    setTimeout(() => {
-      round++;
-      resetGame();
-    }, 2000);
+    // Update cumulative scores for this round
+    gameStore.updateCumulativeScores();
+    
+    // Check if any player reached MAX_SCORE
+    if (gameStore.players.some(player => player.cumulativeScore >= MAX_SCORE)) {
+      // Game ends
+      toast.info(`Fim da ronda ${gameStore.currentRound}. Fim de jogo!`);
+      hasGameEnded.value = true;
+    } else {
+      // Continue to next round
+      toast.info(`Fim da ronda ${gameStore.currentRound}. Próxima ronda começará em breve...`);
+      setTimeout(() => {
+        resetGame();
+        initializeDeck();
+        initializeDiscardPile();
+        handCreation();
+      }, 2000);
+    }
   }
 });
 
 
 // Monitoriza o fim do jogo
 watch(hasGameEnded, (gameOver) => {
-  toast.info('Fim de jogo')
   if (gameOver) {
     determineWinner();
-    router.push('/results')
+    setTimeout(() => {
+      router.push('/results');
+    }, 2000);
   }
 });
 
-
-
-// Monitoriza a pontuação dos jogadores
-watch(() => gameStore.scores, (scores) => {
-  
-  if (scores.some(score => score >= MAX_SCORE && allCardsTurned())) {
-    hasGameEnded.value = true;
-  } else {
-    hasGameEnded.value = false;
-  }
-
-});
 
 
 onMounted(() => {
-  console.log(`round: ${round}`);
+  console.log(`Starting Round: ${gameStore.currentRound}`);
 
   initializeDeck();
 
@@ -317,7 +315,7 @@ onMounted(() => {
       :name="player.name"
       :hand="player.cards"
       :points="gameStore.scores[index]"
-      @select-card="(cardIndex, event) => flipCard(index, cardIndex, event)"
+      @select-card="(cardIndex, event) => onCardClick(index, cardIndex, event)"
     />
   </div>
 </template>
