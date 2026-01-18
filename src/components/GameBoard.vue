@@ -224,18 +224,26 @@ watch(twoCardsTurned, (value) => {
 watch(everyCardTurned, async (allCardsTurned) => {
   
   allCardsTurned.forEach((cards, playerIndex) => {
-    const sameColumn = cards.filter(card => 
-      cards.some(c => c.col === card.col && c.number.number === card.number.number && c.id !== card.id)
-    );
-    
-    if (sameColumn.length === 3) {
-      sameColumn.forEach(card => {
-        card.isHidden = true;
-        discardPile.value.push(card.number.number);
-      });
-      
-      
-    }
+    // Group cards by column + value
+    const cardsByColumnAndValue = {};
+
+    cards.forEach(card => {
+      const key = `${card.col}-${card.number.number}`;
+      if (!cardsByColumnAndValue[key]) {
+        cardsByColumnAndValue[key] = [];
+      }
+      cardsByColumnAndValue[key].push(card);
+    });
+
+    // Check for groups with exactly 3 cards
+    Object.values(cardsByColumnAndValue).forEach(group => {
+      if (group.length === 3) {
+        group.forEach(card => {
+          card.isHidden = true;
+          discardPile.value.push(card.number.number);
+        });
+      }
+    });
   });
 },  { immediate: false });
 
