@@ -64,6 +64,17 @@ export default function useDeck() {
             return
         }
 
+        // Prevent selecting deck if discard pile already chosen
+        if (chooseDiscardCard.value) {
+            toast.info('Você já escolheu uma carta do descarte. Complete a ação ou passe o turno.')
+            return
+        }
+
+        // Prevent selecting deck if card action was already taken (keep or discard)
+        if (replaceCard.value || hasNotReplacedCard.value) {
+            toast.info('Você já escolheu uma ação com a carta anterior. Complete-a selecionando uma carta da mão.')
+            return
+        }
 
         if (!drawnCard.value && deck.value.length > 0) {
             drawnCardValue.value = getCard();
@@ -74,6 +85,7 @@ export default function useDeck() {
     const keepCard = () => {
         replaceCard.value = true;
         drawnCard.value = false;        // reset à variavel, pra voltar a poder tirar uma carta do baralho
+        chooseDiscardCard.value = false; // Ensure discard can't be selected after deck choice
     };
 
 
@@ -92,6 +104,13 @@ export default function useDeck() {
             toast.info('Só é possivel depois de determinado o jogador que vai começar.')
             return
         }
+        
+        // Prevent selecting discard pile if deck already drawn or keep/discard was used
+        if (drawnCard.value || replaceCard.value || hasNotReplacedCard.value) {
+            toast.info('Você já retirou uma carta do baralho. Complete a ação ou descarte a carta.')
+            return
+        }
+        
         // click listenner da pilha de discarte
         chooseDiscardCard.value = true;
     }
